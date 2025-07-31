@@ -5,20 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.1] - 2024-12-19
 
 ### Added
-- Initial project structure
-- Vue 3 + TypeScript frontend
-- Nginx service management
+- Initial release of NginxUI for ASUSWRT-Merlin firmware
+- Vue 3 + TypeScript frontend with modern web technologies
+- Nginx service management (start, stop, restart, reload)
 - Basic and advanced configuration modes
 - SSL/TLS configuration support
 - Upstream and load balancing configuration
 - Real-time service status monitoring
-- Log viewer with search and filtering
+- Log viewer with search and filtering capabilities
 - Multi-language support (English/Chinese)
-- Configuration backup and restore
+- Configuration backup and restore functionality
 - Integration with ASUSWRT-Merlin router UI
+- Responsive web interface optimized for router management
+- User-friendly installation scripts
+- Secure file operations with proper validation
+- Automatic service detection and management
+
+### Features
+- **Configuration Management**: Edit nginx.conf and site configurations
+- **Service Control**: Complete Nginx service lifecycle management
+- **Status Monitoring**: Real-time status display and process monitoring
+- **Log Management**: View and filter Nginx access and error logs
+- **Backup System**: Create and restore configuration backups
+- **Security**: Built-in authentication and secure file handling
+- **Mobile Support**: Responsive design for mobile device access
+
+### Installation
+1. Download the `asuswrt-merlin-nginxui.tar.gz` file
+2. Extract to your router's `/jffs/addons/` directory
+3. Run the installation script: `./install.sh`
+4. Access the web interface at `http://router-ip:8080`
+
+### Requirements
+- ASUSWRT-Merlin firmware
+- Nginx installed on the router
+- At least 10MB free space in `/jffs/`
+
+## [Unreleased]
+
+### Added
+- Future enhancements and features will be listed here
 
 ### Changed
 - N/A
@@ -34,8 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - N/A
-
-## [1.0.0] - 2024-01-XX
 
 ### Added
 - Initial release of ASUSWRT-Merlin NginxUI

@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
+        description: 'Release version (e.g., 0.1.0)'
         required: true
-        default: 'v1.0.0'
+        default: '0.1.0'
       draft:
         description: 'Create as draft release'
         required: false
@@ -45,40 +45,64 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Update version in build files
+        env:
+          NGINXUI_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          echo "Updating NginxUI version to $NGINXUI_VERSION"
+          # Update version in package.json if needed
+          if [ -f "package.json" ]; then
+            npm version $NGINXUI_VERSION --no-git-tag-version
+          fi
+          # Update version in any config files in dist folder
+          find dist -name "*.sh" -o -name "*.conf" | xargs sed -i "s/VERSION=.*/VERSION=\"$NGINXUI_VERSION\"/g" || true
+
       - name: Create release archive
         run: |
           mkdir -p release
-          tar -czf release/asuswrt-merlin-nginxui.tar.gz -C dist .
+          tar --transform 's|^|nginxui/|' -czf release/asuswrt-merlin-nginxui.tar.gz -C dist .
           echo "RELEASE_FILE=asuswrt-merlin-nginxui.tar.gz" >> $GITHUB_ENV
           echo "RELEASE_PATH=release/asuswrt-merlin-nginxui.tar.gz" >> $GITHUB_ENV
 
-      - name: Generate release notes
-        id: release_notes
+      - name: Read Changelog (Latest Version Only)
+        id: read_changelog
         run: |
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
-          echo "## What's Changed" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "### Features" >> $GITHUB_OUTPUT
-          echo "- Built from commit: ${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "- Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "### Installation" >> $GITHUB_OUTPUT
-          echo "1. Download the \`asuswrt-merlin-nginxui.tar.gz\` file" >> $GITHUB_OUTPUT
-          echo "2. Extract to your router's appropriate directory" >> $GITHUB_OUTPUT
-          echo "3. Follow the installation instructions in the README" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/v0.1.2...${{ inputs.version }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Extracting latest changelog entry..."
+          if [ -f "CHANGELOG.md" ]; then
+            CHANGELOG=$(awk '/^## \[/{if (found++) exit} found {print}' CHANGELOG.md)
+            if [ -z "$CHANGELOG" ]; then
+              echo "No changelog entry found, generating default release notes"
+              CHANGELOG="## What's Changed\n\n### Features\n- Built from commit: ${{ github.sha }}\n- Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')\n\n### Installation\n1. Download the \`asuswrt-merlin-nginxui.tar.gz\` file\n2. Extract to your router's appropriate directory\n3. Follow the installation instructions in the README"
+            fi
+          else
+            echo "CHANGELOG.md not found, generating default release notes"
+            CHANGELOG="## What's Changed\n\n### Features\n- Built from commit: ${{ github.sha }}\n- Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')\n\n### Installation\n1. Download the \`asuswrt-merlin-nginxui.tar.gz\` file\n2. Extract to your router's appropriate directory\n3. Follow the installation instructions in the README"
+          fi
+          echo "changelog<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "![Downloads](https://img.shields.io/github/downloads/NasPilot/asuswrt-merlin-nginxui/v${{ github.event.inputs.version }}/asuswrt-merlin-nginxui.tar.gz)" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ inputs.version }}
-          name: NginxUI ${{ inputs.version }}
-          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
-          draft: ${{ inputs.draft }}
-          prerelease: ${{ inputs.prerelease }}
-          files: ${{ env.RELEASE_PATH }}
-          generate_release_notes: false
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: 'NginxUI Release ${{ github.event.inputs.version }}'
+          draft: ${{ github.event.inputs.draft == 'true' }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          body: ${{ env.changelog }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.RELEASE_PATH }}
+          asset_name: ${{ env.RELEASE_FILE }}
+          asset_content_type: application/gzip
