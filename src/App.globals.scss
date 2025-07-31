@@ -1,0 +1,238 @@
+/* Global styles for ASUS Router UI integration */
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+/* ASUS Router UI specific styles */
+.FormTitle {
+  background-color: #4D595D;
+  border-radius: 3px;
+}
+
+.formfonttitle {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  color: #FFFFFF;
+  margin-bottom: 10px;
+}
+
+.formfontdesc {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #999999;
+  line-height: 140%;
+}
+
+.splitLine {
+  background-color: #999999;
+  height: 1px;
+  margin: 10px 0;
+}
+
+/* Button styles */
+.button_gen {
+  background: linear-gradient(to bottom, #EFEFEF 0%, #999999 100%);
+  border: 1px solid #999999;
+  border-radius: 3px;
+  color: #000000;
+  cursor: pointer;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  height: 21px;
+  padding: 0 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.button_gen:hover {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #CCCCCC 100%);
+}
+
+.button_gen:active {
+  background: linear-gradient(to bottom, #999999 0%, #EFEFEF 100%);
+}
+
+/* Input styles */
+input[type="text"], input[type="password"], textarea, select {
+  background-color: #475A5F;
+  border: 1px solid #6B8FA3;
+  border-radius: 3px;
+  color: #FFFFFF;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  padding: 3px 5px;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+  background-color: #5A6D72;
+  border-color: #8FA3B3;
+  outline: none;
+}
+
+/* Table styles */
+table.content {
+  background-color: #2F3A3E;
+}
+
+/* Status indicators */
+.status-running {
+  color: #00FF00;
+  font-weight: bold;
+}
+
+.status-stopped {
+  color: #FF6600;
+  font-weight: bold;
+}
+
+.status-error {
+  color: #FF0000;
+  font-weight: bold;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Nginx specific styles */
+.nginx-config-section {
+  background-color: #3A4A4F;
+  border: 1px solid #5A6A6F;
+  border-radius: 5px;
+  margin: 10px 0;
+  padding: 15px;
+}
+
+.nginx-config-title {
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #5A6A6F;
+  padding-bottom: 5px;
+}
+
+.nginx-status-card {
+  background-color: #475A5F;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nginx-log-viewer {
+  background-color: #2F3A3E;
+  border: 1px solid #5A6A6F;
+  border-radius: 3px;
+  color: #FFFFFF;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+/* Form layout */
+.form-row {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  padding: 5px 0;
+}
+
+.form-label {
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 150px;
+  padding-right: 10px;
+}
+
+.form-input {
+  flex: 1;
+}
+
+.form-description {
+  color: #999999;
+  font-size: 9px;
+  margin-top: 3px;
+  line-height: 120%;
+}
+
+/* Tab styles */
+.tab-container {
+  margin: 10px 0;
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 1px solid #5A6A6F;
+}
+
+.tab-button {
+  background-color: #3A4A4F;
+  border: 1px solid #5A6A6F;
+  border-bottom: none;
+  color: #CCCCCC;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 8px 15px;
+  margin-right: 2px;
+}
+
+.tab-button.active {
+  background-color: #475A5F;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.tab-content {
+  background-color: #475A5F;
+  border: 1px solid #5A6A6F;
+  border-top: none;
+  padding: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-label {
+    min-width: auto;
+    margin-bottom: 5px;
+  }
+}

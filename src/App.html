@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns:v>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta HTTP-EQUIV="Expires" CONTENT="-1">
+<link rel="shortcut icon" href="images/favicon.png">
+<link rel="icon" href="images/favicon.png">
+<title><#Web_Title#> - Nginx UI</title>
+<link rel="stylesheet" type="text/css" href="index_style.css">
+<link rel="stylesheet" type="text/css" href="form_style.css">
+<link rel="stylesheet" type="text/css" href="usp_style.css">
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/httpApi.js"></script>
+<script type="text/javascript" src="/state.js"></script>
+<script type="text/javascript" src="/general.js"></script>
+<script type="text/javascript" src="/popup.js"></script>
+<script type="text/javascript" src="/help.js"></script>
+<script type="text/javascript" src="/validator.js"></script>
+<script type="text/javascript" src="/js/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="/switcherplugin/jquery.iphone-switch.js"></script>
+<script type="text/javascript" src="/form.js"></script>
+<script type="text/javascript" src="/tmmenu.js"></script>
+<script type="text/javascript" src="/client_function.js"></script>
+<script type="text/javascript" src="/js/i18n.js"></script>
+<script type="text/javascript" src="/merlinr.js"></script>
+<script type="text/javascript" src="/ext/shared-jy.js"></script>
+<script type="text/javascript" src="/ext/jquery.xdomainrequest.js"></script>
+<script type="text/javascript" src="/user/nginxui/nginxui.js"></script>
+<link rel="stylesheet" type="text/css" href="/user/nginxui/nginxui.css">
+<style>
+.content_status {
+	position: absolute;
+	margin-left: -30px;
+	margin-top: -67px;
+	background-color: #444f53;
+	border-radius: 10px;
+	z-index: 10;
+	padding: 13px;
+	width: 90px;
+	display: none;
+	color: white;
+	font-size: 11px;
+}
+</style>
+<script>
+function initial(){
+	show_banner(2);
+	show_menu(5,16,0);
+	show_footer();
+	if(amng_custom == 1){
+		document.form.action_script.value = "start_nginxui";
+	}
+}
+
+function applyRule(){
+	showLoading();
+	document.form.submit();
+}
+</script>
+</head>
+
+<body onload="initial();" onunLoad="return unload_body();" class="bg">
+<div id="TopBanner"></div>
+<div id="Loading" class="popup_bg"></div>
+<iframe name="hidden_frame" id="hidden_frame" src="" width="0" height="0" frameborder="0"></iframe>
+
+<div id="app"></div>
+
+<div id="footer"></div>
+</body>
+</html>
