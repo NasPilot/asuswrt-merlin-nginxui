@@ -1,0 +1,136 @@
+// SCSS Variables for ASUS Router UI Integration
+// Based on ASUSWRT-Merlin theme colors and styles
+
+// Color palette
+$primary-color: #4D595D;
+$secondary-color: #999999;
+$accent-color: #EFEFEF;
+$text-color: #000000;
+$text-light: #FFFFFF;
+$text-muted: #999999;
+$border-color: #999999;
+$background-color: #FFFFFF;
+$success-color: #5CB85C;
+$warning-color: #F0AD4E;
+$danger-color: #D9534F;
+$info-color: #5BC0DE;
+
+// Typography
+$font-family-base: Verdana, Arial, Helvetica, sans-serif;
+$font-size-base: 12px;
+$font-size-small: 10px;
+$font-weight-normal: normal;
+$font-weight-bold: bold;
+$line-height-base: 140%;
+
+// Spacing
+$spacing-xs: 5px;
+$spacing-sm: 10px;
+$spacing-md: 15px;
+$spacing-lg: 20px;
+$spacing-xl: 30px;
+
+// Border radius
+$border-radius-base: 3px;
+$border-radius-small: 2px;
+$border-radius-large: 5px;
+
+// Form elements
+$input-height: 21px;
+$button-height: 21px;
+$input-padding: 0 8px;
+$button-padding: 0 8px;
+
+// Layout
+$container-max-width: 1200px;
+$sidebar-width: 200px;
+$header-height: 60px;
+$footer-height: 40px;
+
+// Z-index layers
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Transitions
+$transition-base: all 0.2s ease-in-out;
+$transition-fade: opacity 0.15s linear;
+$transition-collapse: height 0.35s ease;
+
+// Shadows
+$box-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.075);
+$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$box-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+// Gradients
+$gradient-primary: linear-gradient(to bottom, $accent-color 0%, $secondary-color 100%);
+$gradient-secondary: linear-gradient(to bottom, #F5F5F5 0%, #E8E8E8 100%);
+
+// Media queries breakpoints
+$screen-xs: 480px;
+$screen-sm: 768px;
+$screen-md: 992px;
+$screen-lg: 1200px;
+
+// Component specific variables
+$table-border-color: #DDD;
+$table-bg: #FFF;
+$table-bg-accent: #F9F9F9;
+$table-bg-hover: #F5F5F5;
+
+$nav-link-padding: 10px 15px;
+$nav-link-hover-bg: #EEE;
+
+$panel-bg: #FFF;
+$panel-border-color: #DDD;
+$panel-border-radius: $border-radius-base;
+$panel-heading-bg: #F5F5F5;
+$panel-footer-bg: #F5F5F5;
+
+// Status colors
+$status-online: #5CB85C;
+$status-offline: #D9534F;
+$status-warning: #F0AD4E;
+$status-unknown: #999999;
+
+// Loading animation
+$loading-spinner-size: 20px;
+$loading-overlay-bg: rgba(255, 255, 255, 0.8);
+
+// Form validation
+$input-border-focus: #66AFE9;
+$input-border-error: $danger-color;
+$input-border-success: $success-color;
+
+// Tooltip
+$tooltip-bg: rgba(0, 0, 0, 0.9);
+$tooltip-color: #FFF;
+$tooltip-padding: 5px 10px;
+$tooltip-border-radius: $border-radius-small;
+
+// Modal
+$modal-backdrop-bg: rgba(0, 0, 0, 0.5);
+$modal-content-bg: #FFF;
+$modal-header-border-color: #E5E5E5;
+$modal-footer-border-color: #E5E5E5;
+
+// Progress bar
+$progress-bg: #F5F5F5;
+$progress-bar-bg: $info-color;
+$progress-border-radius: $border-radius-base;
+
+// Alert
+$alert-padding: 15px;
+$alert-border-radius: $border-radius-base;
+$alert-link-font-weight: $font-weight-bold;
+
+// Code
+$code-color: #C7254E;
+$code-bg: #F9F2F4;
+$pre-bg: #F5F5F5;
+$pre-color: $text-color;
+$pre-border-color: #CCC;
