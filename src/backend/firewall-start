@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# NginxUI Firewall Start Script
+# This script is called by ASUSWRT-Merlin when firewall is restarted
+# Place this file in /jffs/scripts/firewall-start
+
+# Check if NginxUI is installed
+if [ -f "/opt/share/nginxui/nginxui.sh" ]; then
+    # Check if NginxUI is enabled
+    if [ "$(am_settings_get nginxui_enabled '1')" = "1" ]; then
+        logger -t "nginxui" "Setting up firewall rules"
+        /opt/share/nginxui/nginxui.sh firewall >/dev/null 2>&1
+    fi
+fi
+
+exit 0

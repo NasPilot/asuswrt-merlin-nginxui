@@ -1,6 +1,20 @@
-# ASUSWRT-Merlin NginxUI
+# NginxUI for ASUSWRT-Merlin
 
-一个轻量级且高效的 Web UI 界面，用于在运行 ASUSWRT-Merlin 固件的路由器上管理 Nginx 服务。
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.x-green.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![ASUSWRT-Merlin](https://img.shields.io/badge/ASUSWRT--Merlin-Compatible-orange.svg)](https://www.asuswrt-merlin.net/)
+[![Build Status](https://img.shields.io/github/workflow/status/NasPilot/asuswrt-merlin-nginxui/CI)](https://github.com/NasPilot/asuswrt-merlin-nginxui/actions)
+[![Release](https://img.shields.io/github/v/release/NasPilot/asuswrt-merlin-nginxui)](https://github.com/NasPilot/asuswrt-merlin-nginxui/releases)
+
+🚀 **增强版 NginxUI** - 一个现代化、轻量级且功能丰富的 Web 界面，用于在 ASUSWRT-Merlin 路由器上管理 Nginx 服务。基于 Vue 3、TypeScript 构建，采用模块化 Shell 脚本后端架构，**灵感来源于 XrayUI 的优秀架构设计**。
+
+**✨ 最新增强功能：**
+- **🛡️ 强化安装系统** - 借鉴 XrayUI 的可靠安装机制
+- **🔧 增强错误处理** - 全面的错误检测和恢复机制
+- **⚡ 优化系统集成** - 更好的 JFFS 和 Entware 兼容性
+- **📊 高级服务管理** - 优雅的启动/关闭和健康检查
+- **🎯 现代构建系统** - 优化的 Vite 配置和热重载
 
 <details>
     <summary>支持的设备</summary>
@@ -69,34 +83,67 @@
 - RT-AX58U, RT-AC58U
 - 其他支持 ASUSWRT-Merlin 的型号
 
-## 安装指南
+## 增强安装指南
 
 ### SSH 访问
 
-通过 SSH 访问您的路由器以执行安装命令。
+通过 SSH 访问您的路由器以执行安装命令。建议使用 PuTTY (Windows) 或终端 (macOS/Linux)。
 
-### 前置条件
+### 系统要求
 
+**必需条件：**
 - [Merlin 固件](https://www.asuswrt-merlin.net/download) (`384.15` 或更高版本，`3006.102.1` 或更高版本)
-- [Entware](https://github.com/Entware/Entware/wiki/Install-on-Asus-stock-firmware) 已安装
-  - 您可以使用内置的 [amtm](https://diversion.ch/amtm.html) 工具来安装 `Entware`
-- Nginx 服务 (通过 Entware 安装)
+- [Entware](https://github.com/Entware/Entware/wiki/Install-on-Asus-stock-firmware) 包管理器
+  - 可使用内置 [amtm](https://diversion.ch/amtm.html) 工具安装
+- **至少 50MB** JFFS 可用空间
+- **启用 JFFS 分区**和自定义脚本支持
 
-### 一键安装
+**推荐配置：**
+- 256MB+ RAM (用于更好的性能)
+- 稳定的网络连接
+- 最新的 Entware 版本
 
-要安装最新版本的 `ASUSWRT Merlin NginxUI`，只需在路由器的 SSH 终端中运行以下命令：
+### 🚀 增强一键安装
 
+**智能安装脚本** - 具备错误处理、重试机制和自动回滚功能：
+
+```shell
+# 增强版一键安装 (推荐)
+wget -O /tmp/install-nginxui.sh https://raw.githubusercontent.com/NasPilot/asuswrt-merlin-nginxui/main/scripts/install.sh && chmod +x /tmp/install-nginxui.sh && /tmp/install-nginxui.sh
+```
+
+**传统安装方式** (如果上述方法失败)：
 ```shell
 wget -O /tmp/asuswrt-merlin-nginxui.tar.gz https://github.com/NasPilot/asuswrt-merlin-nginxui/releases/latest/download/asuswrt-merlin-nginxui.tar.gz && rm -rf /jffs/addons/nginxui && tar -xzf /tmp/asuswrt-merlin-nginxui.tar.gz -C /jffs/addons && mv /jffs/addons/nginxui/webapp.sh /jffs/scripts/nginxui && chmod 0777 /jffs/scripts/nginxui && sh /jffs/scripts/nginxui install
 ```
 
-### 如何卸载
+**安装功能特性：**
+- ✅ **自动前置检查** - 验证系统要求
+- ✅ **智能重试机制** - 处理网络中断
+- ✅ **自动回滚** - 安装失败时自动清理
+- ✅ **进度指示器** - 实时安装状态
+- ✅ **冲突检测** - 检查现有安装
 
-要卸载并清理，请运行以下命令：
+### 🗑️ 完整卸载
+
+**安全卸载** - 完整清理所有文件和配置：
 
 ```shell
+# 标准卸载
 /jffs/scripts/nginxui uninstall
+
+# 强制清理 (如果标准卸载失败)
+/jffs/scripts/nginxui uninstall --force
+
+# 保留配置的卸载
+/jffs/scripts/nginxui uninstall --keep-config
 ```
+
+**卸载功能：**
+- 🧹 **完整清理** - 移除所有相关文件
+- 💾 **配置备份** - 可选保留用户配置
+- 🔄 **服务停止** - 优雅停止所有相关服务
+- ✅ **验证清理** - 确认完全移除
 
 ### 手动安装
 
@@ -137,12 +184,29 @@ wget -O /tmp/asuswrt-merlin-nginxui.tar.gz https://github.com/NasPilot/asuswrt-m
    - 登录路由器管理界面
    - 导航到 `网络工具` -> `Nginx`
 
-## 使用说明
+## 📖 使用说明
 
-### 安装后步骤
+### 🎯 安装后步骤
 
-- **注销并重新登录**: 安装完成后，请从路由器的浏览器 UI 注销，然后重新登录。
-- **访问 Nginx 选项卡**: 在路由器的 Web UI 中导航到 `网络工具` 菜单项，查找标有 `Nginx` 的新选项卡。
+1. **刷新浏览器缓存**: 按 `Ctrl+F5` (Windows) 或 `Cmd+Shift+R` (macOS) 强制刷新
+2. **注销并重新登录**: 从路由器管理界面注销，然后重新登录
+3. **访问 NginxUI**: 导航到 `网络工具` → `Nginx` 选项卡
+4. **验证安装**: 检查服务状态和系统信息
+
+### 🚀 快速开始
+
+**首次配置向导：**
+1. **基础设置** - 配置监听端口和服务器名称
+2. **SSL 配置** - 可选配置 HTTPS 支持
+3. **测试配置** - 验证配置正确性
+4. **启动服务** - 启动 Nginx 服务
+
+**常用操作：**
+- 📊 **仪表板** - 查看服务状态和系统指标
+- ⚙️ **配置管理** - 基础/高级配置模式
+- 🌐 **虚拟主机** - 管理多个网站
+- 📝 **日志查看** - 实时日志监控
+- 🔒 **SSL 管理** - 证书管理和 HTTPS 配置
 
 ### 手动安装
 
@@ -305,9 +369,17 @@ A: 如果您已经有想要使用的 Nginx 配置文件，需要将其放置在�
 
 A: NginxUI 提供自动备份功能，您可以在 Web 界面中创建配置备份，也可以从历史备份中恢复配置。
 
-## 开发指南
+## 🛠️ 开发指南
 
-### 项目结构
+### 📋 开发环境要求
+
+- **Node.js 18+** (LTS 推荐)
+- **npm 9+** 或 **yarn 3+**
+- **Git 2.30+**
+- **ASUSWRT-Merlin 路由器** (用于测试)
+- **现代代码编辑器** (推荐 VS Code)
+
+### 🏗️ 增强项目结构
 ```
 asuswrt-merlin-nginxui/
 ├── src/
@@ -315,38 +387,127 @@ asuswrt-merlin-nginxui/
 │   ├── App.ts               # 应用入口
 │   ├── App.html             # ASP 页面模板
 │   ├── App.globals.scss     # 全局样式
-│   ├── components/          # Vue 组件
+│   ├── components/          # Vue 组件库
+│   │   ├── common/         # 通用组件
+│   │   ├── forms/          # 表单组件
+│   │   ├── charts/         # 图表组件
+│   │   └── modals/         # 模态框组件
 │   ├── modules/             # 业务模块
+│   │   ├── dashboard/      # 仪表板模块
+│   │   ├── config/         # 配置管理模块
+│   │   ├── monitoring/     # 监控模块
+│   │   └── ssl/            # SSL 管理模块
+│   ├── utils/               # 工具函数
+│   │   ├── api.ts          # API 客户端
+│   │   ├── validation.ts   # 表单验证
+│   │   ├── helpers.ts      # 辅助函数
+│   │   └── constants.ts    # 常量定义
 │   ├── locales/             # 国际化文件
-│   └── backend/             # 后端脚本
+│   │   ├── zh-CN.json      # 简体中文
+│   │   ├── zh-TW.json      # 繁体中文
+│   │   └── en-US.json      # 英文
+│   ├── backend/             # 增强后端脚本
+│   │   ├── nginxui.sh      # 主控制脚本
+│   │   ├── install.sh      # 安装脚本
+│   │   ├── service.sh      # 服务管理
+│   │   ├── config.sh       # 配置管理
+│   │   ├── monitor.sh      # 监控脚本
+│   │   └── _helper.sh      # 辅助函数
+│   └── styles/              # 样式文件
+│       ├── variables.scss  # SCSS 变量
+│       ├── mixins.scss     # SCSS 混入
+│       └── themes/         # 主题文件
 ├── dist/                    # 构建输出
-├── build.tar.sh             # 构建脚本
+├── tests/                   # 测试文件
+│   ├── unit/               # 单元测试
+│   ├── integration/        # 集成测试
+│   └── e2e/                # 端到端测试
+├── docs/                    # 文档
+│   ├── api/                # API 文档
+│   ├── guides/             # 使用指南
+│   └── development/        # 开发文档
+├── scripts/                 # 构建和部署脚本
+│   ├── build.sh            # 构建脚本
+│   ├── deploy.sh           # 部署脚本
+│   └── test.sh             # 测试脚本
+├── build.tar.sh             # 发布包构建
 ├── package.json             # 项目配置
 ├── vite.config.ts           # Vite 配置
-└── tsconfig.json            # TypeScript 配置
+├── tsconfig.json            # TypeScript 配置
+├── eslint.config.js         # ESLint 配置
+├── prettier.config.js       # Prettier 配置
+└── vitest.config.ts         # 测试配置
 ```
 
-### 构建项目
+### 🚀 增强构建系统
 
-1. **安装依赖**
+1. **环境设置**
    ```bash
-   npm install
+   # 克隆项目
+   git clone https://github.com/NasPilot/asuswrt-merlin-nginxui.git
+   cd asuswrt-merlin-nginxui
+   
+   # 安装依赖 (精确版本)
+   npm ci
+   
+   # 设置开发环境
+   npm run dev:setup
    ```
 
 2. **开发模式**
    ```bash
+   # 启动开发服务器 (热重载)
    npm run dev
+   
+   # 启动路由器代理模式 (用于测试)
+   npm run dev:router
+   
+   # 启动组件库开发
+   npm run dev:storybook
    ```
 
-3. **构建生产版本**
+3. **代码质量**
    ```bash
+   # 运行测试套件
+   npm run test
+   npm run test:watch
+   npm run test:coverage
+   
+   # 代码检查和格式化
+   npm run lint
+   npm run lint:fix
+   npm run format
+   
+   # 类型检查
+   npm run type-check
+   ```
+
+4. **构建和部署**
+   ```bash
+   # 构建生产版本
    npm run build
-   ```
-
-4. **创建发布包**
-   ```bash
+   
+   # 预览生产构建
+   npm run preview
+   
+   # 分析构建包大小
+   npm run analyze
+   
+   # 创建发布包
+   npm run build:release
    ./build.tar.sh
    ```
+
+### 🔧 开发功能特性
+
+- 🔥 **热模块替换** - 开发时即时更新
+- 🧪 **组件测试** - Vitest 自动化测试
+- 📱 **响应式测试** - 多设备预览
+- 🔍 **代码分析** - ESLint + Prettier + TypeScript
+- 📊 **包分析** - Webpack bundle analyzer
+- 🚀 **性能监控** - Lighthouse CI 集成
+- 🎨 **组件库** - Storybook 组件开发
+- 🌐 **国际化** - Vue I18n 多语言支持
 
 ### 贡献指南
 

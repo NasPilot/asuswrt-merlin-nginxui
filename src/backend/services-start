@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# NginxUI Services Start Script
+# This script is called by ASUSWRT-Merlin during system startup
+# Place this file in /jffs/scripts/services-start
+
+# Wait for system to be ready
+sleep 10
+
+# Check if NginxUI is installed and enabled
+if [ -f "/opt/share/nginxui/nginxui.sh" ]; then
+    # Check if auto-start is enabled
+    if [ "$(am_settings_get nginxui_auto_start '1')" = "1" ]; then
+        logger -t "nginxui" "Starting NginxUI on system startup"
+        /opt/share/nginxui/nginxui.sh start >/dev/null 2>&1 &
+    fi
+fi
+
+exit 0

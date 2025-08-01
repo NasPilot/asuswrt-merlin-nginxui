@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# NginxUI Post-Mount Script
+# This script is called by ASUSWRT-Merlin when USB devices are mounted
+# Place this file in /jffs/scripts/post-mount
+
+# Get mount point from arguments
+MOUNT_POINT="$1"
+
+# Check if this is the mount point where NginxUI might be installed
+if [ -n "$MOUNT_POINT" ] && [ -f "$MOUNT_POINT/opt/share/nginxui/nginxui.sh" ]; then
+    logger -t "nginxui" "USB device mounted, checking NginxUI installation"
+    
+    # Wait a bit for the mount to stabilize
+    sleep 5
+    
+    # Check if auto-start is enabled
+    if [ "$(am_settings_get nginxui_auto_start '1')" = "1" ]; then
+        logger -t "nginxui" "Starting NginxUI after USB mount"
+        "$MOUNT_POINT/opt/share/nginxui/nginxui.sh" start >/dev/null 2>&1 &
+    fi
+fi
+
+exit 0

@@ -1,54 +1,110 @@
-# Contributing to ASUSWRT-Merlin NginxUI
+# Contributing to NginxUI for ASUSWRT-Merlin
 
-Thank you for your interest in contributing to ASUSWRT-Merlin NginxUI! This document provides guidelines and information for contributors.
+🎉 Thank you for your interest in contributing to NginxUI! This project has been enhanced with XrayUI's best practices to provide a robust and reliable web interface for Nginx management on ASUSWRT-Merlin routers.
 
-## Table of Contents
+**✨ Enhanced with XrayUI Architecture** - We've adopted proven patterns for installation reliability, error handling, and system integration.
+
+## 📋 Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [Contributing Guidelines](#contributing-guidelines)
-- [Pull Request Process](#pull-request-process)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Documentation](#documentation)
+- [Enhanced Development Setup](#enhanced-development-setup)
+- [Development Workflow](#development-workflow)
+- [Code Quality Standards](#code-quality-standards)
+- [Testing Guidelines](#testing-guidelines)
+- [Documentation Standards](#documentation-standards)
+- [Submitting Changes](#submitting-changes)
+- [Release Process](#release-process)
+- [Getting Help](#getting-help)
 
 ## Code of Conduct
 
 This project adheres to a code of conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### Enhanced Prerequisites
 
-- Node.js 18+ and npm
-- Git
-- Basic knowledge of Vue.js, TypeScript, and shell scripting
-- ASUSWRT-Merlin router for testing (recommended)
+- **Node.js 18+** (LTS recommended) and **npm 9+**
+- **Git 2.30+** with proper configuration
+- **Modern Code Editor** (VS Code recommended)
+- **ASUSWRT-Merlin Router** for testing (highly recommended)
+- **Knowledge Areas**:
+  - Vue 3 Composition API and TypeScript
+  - Modern shell scripting with error handling
+  - ASUSWRT-Merlin firmware architecture
+  - Nginx configuration and management
 
-### Development Setup
+### Recommended VS Code Extensions
 
-1. **Fork and Clone**
-   ```bash
-   git clone https://github.com/your-username/asuswrt-merlin-nginxui.git
-   cd asuswrt-merlin-nginxui
-   ```
+```json
+{
+  "recommendations": [
+    "vue.volar",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format"
+  ]
+}
+```
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+## 🛠️ Enhanced Development Setup
 
-3. **Setup Environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+### 1. Fork and Clone with Submodules
 
-4. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
+```bash
+# Fork the repository on GitHub, then clone your fork
+git clone --recursive https://github.com/YOUR_USERNAME/asuswrt-merlin-nginxui.git
+cd asuswrt-merlin-nginxui
+
+# Add the original repository as upstream
+git remote add upstream https://github.com/NasPilot/asuswrt-merlin-nginxui.git
+```
+
+### 2. Enhanced Environment Setup
+
+```bash
+# Install dependencies with exact versions
+npm ci
+
+# Setup development environment with enhanced tooling
+npm run dev:setup
+
+# Install pre-commit hooks for code quality
+npm run prepare
+
+# Verify installation
+npm run verify-setup
+```
+
+### 3. Development Server Options
+
+```bash
+# Standard development server with hot reload
+npm run dev
+
+# Development server with router proxy (for testing)
+npm run dev:router
+
+# Component development with Storybook
+npm run dev:storybook
+
+# Development with debug logging
+npm run dev:debug
+```
+
+### 4. Verify Setup
+
+```bash
+# Run comprehensive setup verification
+npm run test
+npm run lint
+npm run type-check
+npm run build
+```
 
 5. **Run Tests**
    ```bash

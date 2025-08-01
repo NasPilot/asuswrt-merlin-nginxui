@@ -1,0 +1,39 @@
+# NginxUI Log Rotation Configuration
+# This file should be placed in /opt/etc/logrotate.d/
+
+/opt/var/log/nginxui/*.log {
+    daily
+    missingok
+    rotate 7
+    compress
+    delaycompress
+    notifempty
+    create 644 nobody nobody
+    postrotate
+        # Reload NginxUI if it's running
+        if [ -f /opt/var/run/nginxui.pid ]; then
+            /opt/share/nginxui/nginxui.sh webapp restart >/dev/null 2>&1 || true
+        fi
+        # Reload Nginx if it's running
+        if [ -f /opt/var/run/nginx.pid ]; then
+            /opt/share/nginxui/nginxui.sh service reload >/dev/null 2>&1 || true
+        fi
+    endscript
+}
+
+/opt/var/log/nginx/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 644 nobody nobody
+    sharedscripts
+    postrotate
+        # Send USR1 signal to Nginx to reopen log files
+        if [ -f /opt/var/run/nginx.pid ]; then
+            kill -USR1 $(cat /opt/var/run/nginx.pid) >/dev/null 2>&1 || true
+        fi
+    endscript
+}

@@ -1,31 +1,55 @@
 #!/bin/sh
 
 # NGINXUI Installation Script for ASUSWRT-Merlin
+# Enhanced with XrayUI best practices
 
 # Source global variables
 . "$(dirname "$0")/_globals.sh"
 
-# Installation functions
+# Enhanced installation functions with better error handling
 check_prerequisites() {
+    print_info "Starting NginxUI installation process."
     print_info "Checking prerequisites..."
     
     # Check if JFFS partition is enabled
     if [ ! -d "/jffs" ]; then
         print_error "JFFS partition is not available. Please enable JFFS custom scripts and configs in the router's administration page."
+        print_error "Installation cannot continue without JFFS partition."
         return 1
-    fi
+    
+    print_success "Web interface files installed successfully."
+    return 0
+}
+    print_info "JFFS partition is ENABLED."
     
     # Check if custom scripts are enabled
     if [ "$(nvram get jffs2_scripts)" != "1" ]; then
         print_error "Custom scripts are not enabled. Please enable JFFS custom scripts and configs in the router's administration page."
+        print_error "Installation cannot continue without custom scripts enabled."
         return 1
     fi
+    print_info "JFFS custom scripts and configs are ENABLED."
     
     # Check if Entware is installed
     if ! command_exists "opkg"; then
         print_error "Entware is not installed. Please install Entware first."
         print_info "You can install Entware using amtm (Asuswrt-Merlin Terminal Menu)."
+        print_error "Installation cannot continue without Entware."
         return 1
+    fi
+    print_info "Entware is installed."
+    
+    # Check firmware version compatibility
+    local fw_version="$(nvram get buildno)"
+    if [ -n "$fw_version" ]; then
+        print_info "Firmware version: $(nvram get productid) $(nvram get buildno)"
+    fi
+    
+    # Check available disk space
+    local available_space="$(df /jffs | awk 'NR==2 {print $4}')"
+    if [ "$available_space" -lt 10240 ]; then  # Less than 10MB
+        print_warn "Low disk space on JFFS partition: ${available_space}KB available"
+        print_warn "NginxUI requires at least 10MB of free space"
     fi
     
     print_success "Prerequisites check passed."
@@ -35,16 +59,45 @@ check_prerequisites() {
 install_packages() {
     print_info "Installing required packages..."
     
-    # Update package list
-    opkg update || {
-        print_error "Failed to update package list."
-        return 1
-    }
+    # Update package list with retry mechanism
+    local retry_count=0
+    local max_retries=3
     
-    # Install required packages
-    local packages="nginx nginx-mod-http-ssl nginx-mod-http-gzip nginx-mod-http-realip nginx-mod-http-stub-status"
+    while [ $retry_count -lt $max_retries ]; do
+        print_info "Updating package list (attempt $((retry_count + 1))/$max_retries)..."
+        if opkg update; then
+            print_info "Package list updated successfully."
+            break
+        else
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $max_retries ]; then
+                print_warn "Failed to update package list, retrying in 5 seconds..."
+                sleep 5
+            else
+                print_error "Failed to update package list after $max_retries attempts."
+                return 1
+            fi
+        fi
+    done
     
-    for package in $packages; do
+    # Check essential packages first
+    local essential_packages="sed curl jq"
+    for package in $essential_packages; do
+        if ! opkg list-installed | grep -q "^$package "; then
+            print_info "Installing essential package $package..."
+            opkg install "$package" || {
+                print_error "Failed to install essential package $package"
+                return 1
+            }
+        else
+            print_info "$package is already installed."
+        fi
+    done
+    
+    # Install Nginx and modules
+    local nginx_packages="nginx nginx-mod-http-ssl nginx-mod-http-gzip nginx-mod-http-realip nginx-mod-http-stub-status"
+    
+    for package in $nginx_packages; do
         if ! opkg list-installed | grep -q "^$package "; then
             print_info "Installing $package..."
             opkg install "$package" || {
@@ -56,7 +109,7 @@ install_packages() {
     done
     
     # Install additional useful packages
-    local optional_packages="curl wget openssl-util"
+    local optional_packages="wget openssl-util flock logrotate"
     
     for package in $optional_packages; do
         if ! opkg list-installed | grep -q "^$package "; then
@@ -64,8 +117,19 @@ install_packages() {
             opkg install "$package" || {
                 print_warn "Failed to install optional package $package, continuing..."
             }
+        else
+            print_info "$package is already installed."
         fi
     done
+    
+    # Verify Nginx installation
+    if command_exists "nginx"; then
+        local nginx_version="$(nginx -v 2>&1 | cut -d'/' -f2 | cut -d' ' -f1)"
+        print_info "Nginx version: $nginx_version"
+    else
+        print_error "Nginx installation verification failed"
+        return 1
+    fi
     
     print_success "Package installation completed."
     return 0
@@ -80,9 +144,31 @@ setup_directories() {
         return 1
     fi
     
-    # Set proper permissions
+    # Create additional directories for enhanced functionality
+    local additional_dirs="
+        $NGINXUI_ADDON_DIR/geodata
+        $NGINXUI_ADDON_DIR/certs
+        $NGINXUI_ADDON_DIR/templates
+        $NGINXUI_ADDON_DIR/cache
+    "
+    
+    for dir in $additional_dirs; do
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir" || {
+                print_warn "Failed to create directory: $dir"
+            }
+        fi
+    done
+    
+    # Set proper permissions with enhanced security
     chmod 755 "$NGINXUI_WEB_DIR" "$NGINXUI_SCRIPT_DIR" "$NGINXUI_SHARED_DIR" "$NGINXUI_CONFIG_DIR"
     chmod 755 "$NGINXUI_LOG_DIR" "$NGINXUI_BACKUP_DIR" "$NGINX_CONF_DIR" "$NGINX_LOG_DIR"
+    chmod 700 "$NGINXUI_ADDON_DIR/certs" 2>/dev/null || true  # Secure certificate directory
+    
+    # Create default configuration files if they don't exist
+    if [ ! -f "$NGINXUI_CONFIG_DIR/nginxui.conf" ]; then
+        create_default_config
+    fi
     
     print_success "Directory setup completed."
     return 0
@@ -91,13 +177,39 @@ setup_directories() {
 install_web_files() {
     print_info "Installing web interface files..."
     
-    # Copy web files to the web directory
-    if [ -f "nginxui.js" ]; then
-        cp "nginxui.js" "$NGINXUI_WEB_DIR/" || {
-            print_error "Failed to copy nginxui.js"
+    # Ensure web directory exists
+    if [ ! -d "$NGINXUI_WEB_DIR" ]; then
+        mkdir -p "$NGINXUI_WEB_DIR" || {
+            print_error "Failed to create web directory: $NGINXUI_WEB_DIR"
             return 1
         }
     fi
+    
+    # Copy web files to the web directory
+    if [ -f "app.js" ]; then
+        cp "app.js" "$NGINXUI_WEB_DIR/" || {
+            print_error "Failed to copy app.js"
+            return 1
+        }
+        print_info "Copied app.js to web directory"
+    fi
+    
+    if [ -f "index.asp" ]; then
+        cp "index.asp" "$NGINXUI_WEB_DIR/" || {
+            print_error "Failed to copy index.asp"
+            return 1
+        }
+        print_info "Copied index.asp to web directory"
+    fi
+    
+    # Copy additional assets if they exist
+    for asset in "style.css" "favicon.ico" "manifest.json"; do
+        if [ -f "$asset" ]; then
+            cp "$asset" "$NGINXUI_WEB_DIR/" || {
+                print_warn "Failed to copy $asset"
+            }
+        fi
+    done
     
     if [ -f "nginxui.css" ]; then
         cp "nginxui.css" "$NGINXUI_WEB_DIR/" || {

@@ -1,0 +1,14 @@
+# NginxUI Cron Jobs
+# This file should be placed in /opt/etc/cron.d/
+
+# Health check every 5 minutes
+*/5 * * * * root /opt/share/nginxui/nginxui.sh health >/dev/null 2>&1
+
+# Cleanup old files daily at 2:30 AM
+30 2 * * * root /opt/share/nginxui/nginxui.sh cleanup >/dev/null 2>&1
+
+# Backup configuration weekly on Sunday at 3:00 AM
+0 3 * * 0 root /opt/share/nginxui/nginxui.sh config backup >/dev/null 2>&1
+
+# Log rotation check daily at 4:00 AM
+0 4 * * * root /opt/bin/logrotate -f /opt/etc/logrotate.d/nginxui >/dev/null 2>&1
