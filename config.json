@@ -1,0 +1,88 @@
+{
+  "name": "NginxUI",
+  "version": "1.0.0",
+  "description": "Web-based Nginx management interface for ASUS routers",
+  
+  "paths": {
+    "backend": "src/backend",
+    "frontend": "src",
+    "dist": "dist",
+    "logs": "logs",
+    "temp": "tmp"
+  },
+  
+  "router": {
+    "defaultIP": "192.168.1.1",
+    "defaultUser": "admin",
+    "installPath": "/jffs/addons/nginxui",
+    "webPath": "/www/nginxui",
+    "backendPath": "/jffs/addons/nginxui/backend",
+    "logPath": "/tmp/nginxui"
+  },
+  
+  "build": {
+    "target": "es2015",
+    "minify": true,
+    "sourcemap": false,
+    "cssCodeSplit": false,
+    "chunkSizeWarningLimit": 1000
+  },
+  
+  "development": {
+    "port": 3000,
+    "host": "localhost",
+    "open": false,
+    "cors": true,
+    "proxy": {
+      "/api": {
+        "target": "http://192.168.1.1",
+        "changeOrigin": true,
+        "secure": false
+      }
+    }
+  },
+  
+  "nginx": {
+    "defaultPort": 8080,
+    "defaultSSLPort": 8443,
+    "configPath": "/opt/etc/nginx",
+    "logPath": "/opt/var/log/nginx",
+    "pidFile": "/opt/var/run/nginx.pid",
+    "modules": [
+      "http_ssl_module",
+      "http_realip_module",
+      "http_gzip_static_module",
+      "http_secure_link_module"
+    ]
+  },
+  
+  "features": {
+    "ssl": true,
+    "gzip": true,
+    "cache": true,
+    "logging": true,
+    "firewall": true,
+    "backup": true
+  },
+  
+  "security": {
+    "enableCSRF": true,
+    "sessionTimeout": 3600,
+    "maxLoginAttempts": 5,
+    "lockoutDuration": 300
+  },
+  
+  "logging": {
+    "level": "info",
+    "maxSize": "10MB",
+    "maxFiles": 5,
+    "format": "combined"
+  },
+  
+  "backup": {
+    "autoBackup": true,
+    "backupInterval": "daily",
+    "maxBackups": 7,
+    "backupPath": "/jffs/addons/nginxui/backups"
+  }
+}

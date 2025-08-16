@@ -4,6 +4,64 @@
 # Helper functions for NGINXUI
 # Enhanced with XrayUI best practices for robust system integration
 
+# Module import function (based on XrayUI pattern)
+import() {
+    local module="$1"
+    local module_path="$NGINXUI_SCRIPT_DIR/$module.sh"
+    
+    if [ -f "$module_path" ]; then
+        . "$module_path"
+        log_debug "Imported module: $module"
+    else
+        log_error "Module $module not found at $module_path"
+        return 1
+    fi
+}
+
+# Batch import modules
+import_modules() {
+    for module in "$@"; do
+        import "$module" || return 1
+    done
+}
+
+# Enhanced error handling setup
+setup_error_handling() {
+    set -e
+    trap 'handle_error $? $LINENO' ERR
+}
+
+# Error handler
+handle_error() {
+    local exit_code=$1
+    local line_number=$2
+    log_error "Script failed with exit code $exit_code at line $line_number"
+    cleanup_on_error
+    exit $exit_code
+}
+
+# Cleanup on error
+cleanup_on_error() {
+    # Remove lock files
+    rm -f "$NGINXUI_LOCK" 2>/dev/null || true
+    # Kill any background processes
+    jobs -p | xargs -r kill 2>/dev/null || true
+}
+
+# Setup logging system
+setup_logging() {
+    # Ensure log directory exists
+    mkdir -p "$(dirname "$NGINXUI_LOG")"
+    
+    # Setup log rotation if needed
+    if [ -f "$NGINXUI_LOG" ] && [ "$(stat -f%z "$NGINXUI_LOG" 2>/dev/null || stat -c%s "$NGINXUI_LOG" 2>/dev/null)" -gt 1048576 ]; then
+        mv "$NGINXUI_LOG" "$NGINXUI_LOG.old"
+    fi
+    
+    # Initialize log file
+    touch "$NGINXUI_LOG"
+}
+
 # Check if a process is running by name
 is_process_running() {
     local process_name="$1"
@@ -311,8 +369,8 @@ cleanup_firewall_rules() {
     return 0
 }
 
-# Import function for modular shell scripts
-import() {
+# Legacy import function (deprecated - use import() instead)
+legacy_import() {
     local script_path="$1"
     local script_dir="$(dirname "$0")"
     
@@ -326,6 +384,27 @@ import() {
     else
         log_error "Failed to import script: $script_path"
         exit 1
+    fi
+}
+
+# Enhanced import with module validation
+import_with_validation() {
+    local module="$1"
+    local required_functions="$2"
+    
+    if import "$module"; then
+        # Validate required functions exist
+        if [ -n "$required_functions" ]; then
+            for func in $required_functions; do
+                if ! command -v "$func" >/dev/null 2>&1; then
+                    log_error "Required function $func not found in module $module"
+                    return 1
+                fi
+            done
+        fi
+        return 0
+    else
+        return 1
     fi
 }
 

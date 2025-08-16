@@ -7,7 +7,7 @@
 [![Build Status](https://img.shields.io/github/workflow/status/NasPilot/asuswrt-merlin-nginxui/CI)](https://github.com/NasPilot/asuswrt-merlin-nginxui/actions)
 [![Release](https://img.shields.io/github/v/release/NasPilot/asuswrt-merlin-nginxui)](https://github.com/NasPilot/asuswrt-merlin-nginxui/releases)
 
-🚀 **增强版 NginxUI** - 一个现代化、轻量级且功能丰富的 Web 界面，用于在 ASUSWRT-Merlin 路由器上管理 Nginx 服务。基于 Vue 3、TypeScript 构建，采用模块化 Shell 脚本后端架构，**灵感来源于 XrayUI 的优秀架构设计**。
+> 🚀 **基于 XrayUI 成功架构重构** - 一个现代化、高效的 Web 界面，用于在 ASUSWRT-Merlin 路由器上管理 Nginx 服务。采用 Vue 3 + TypeScript 构建，**继承了 XrayUI 的优秀设计理念和成熟架构模式**。
 
 **✨ 最新增强功能：**
 - **🛡️ 强化安装系统** - 借鉴 XrayUI 的可靠安装机制

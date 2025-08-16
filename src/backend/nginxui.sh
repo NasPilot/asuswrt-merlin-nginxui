@@ -1,103 +1,92 @@
 #!/bin/sh
 # NginxUI Main Control Script
-# Enhanced with XrayUI best practices for better system integration
-# Handles all NginxUI operations and module coordination
+# Simplified architecture based on XrayUI best practices
+# Unified event-driven service management
 
 # Version information
 NGINXUI_VERSION="1.0.0"
 NGINXUI_BUILD_DATE="$(date '+%Y-%m-%d')"
 
-# Set script directory if not already set
-if [ -z "$NGINXUI_SCRIPT_DIR" ]; then
-    export NGINXUI_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-fi
+# Set script directory
+export NGINXUI_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Enhanced error handling
-set -e
-trap 'log_error "Script failed at line $LINENO"' ERR
+# Import core modules
+. "$NGINXUI_SCRIPT_DIR/_globals.sh"
+. "$NGINXUI_SCRIPT_DIR/_helper.sh"
 
-# Import required modules with error checking
-for module in "_globals.sh" "_helper.sh" "mount.sh" "service.sh" "config.sh" "webapp.sh" "install.sh"; do
-    if [ -f "$NGINXUI_SCRIPT_DIR/$module" ]; then
-        . "$NGINXUI_SCRIPT_DIR/$module"
-    else
-        echo "ERROR: Required module $module not found in $NGINXUI_SCRIPT_DIR"
-        exit 1
-    fi
-done
+# Setup error handling and logging
+setup_error_handling
+setup_logging
 
-# Disable error exit for normal operations
-set +e
-
-# Enhanced NginxUI control functions with better error handling and logging
-start_nginxui() {
-    log_info "Starting NginxUI v$NGINXUI_VERSION..."
+# Unified service event handler (based on XrayUI architecture)
+service_event() {
+    local action="$1"
+    local param1="$2"
+    local param2="$3"
     
-    # Check if already running
-    if is_webapp_running && is_service_running; then
-        log_warn "NginxUI is already running"
-        return 0
-    fi
+    # Import required modules on demand
+    case "$action" in
+        "start"|"stop"|"restart"|"status")
+            import "service" || return 1
+            ;;
+        "install"|"uninstall")
+            import "install" || return 1
+            ;;
+        "config")
+            import "config" || return 1
+            ;;
+        "webapp")
+            import "webapp" || return 1
+            ;;
+        "mount"|"unmount")
+            import "mount" || return 1
+            ;;
+    esac
     
-    # Create lock file to prevent concurrent operations
-    local lock_file="/var/run/nginxui.lock"
-    if [ -f "$lock_file" ]; then
-        local lock_pid="$(cat "$lock_file" 2>/dev/null)"
-        if [ -n "$lock_pid" ] && kill -0 "$lock_pid" 2>/dev/null; then
-            log_error "Another NginxUI operation is in progress (PID: $lock_pid)"
+    case "$action" in
+        "start")
+            log_info "Starting NginxUI v$NGINXUI_VERSION..."
+            start_nginxui
+            ;;
+        "stop")
+            log_info "Stopping NginxUI..."
+            stop_nginxui
+            ;;
+        "restart")
+            log_info "Restarting NginxUI..."
+            stop_nginxui && sleep 2 && start_nginxui
+            ;;
+        "status")
+            check_nginxui_status
+            ;;
+        "install")
+            log_info "Installing NginxUI..."
+            install_nginxui "$param1"
+            ;;
+        "uninstall")
+            log_info "Uninstalling NginxUI..."
+            uninstall_nginxui
+            ;;
+        "config")
+            handle_config_operation "$param1" "$param2"
+            ;;
+        "webapp")
+            handle_webapp_operation "$param1"
+            ;;
+        "mount")
+            mount_web_interface
+            ;;
+        "unmount")
+            unmount_web_interface
+            ;;
+        "version")
+            echo "NginxUI v$NGINXUI_VERSION (Build: $NGINXUI_BUILD_DATE)"
+            ;;
+        *)
+            show_usage
             return 1
-        else
-            rm -f "$lock_file"
-        fi
-    fi
-    echo $$ > "$lock_file"
-    
-    # Cleanup function
-    cleanup_start() {
-        rm -f "$lock_file"
-    }
-    trap cleanup_start EXIT
-    
-    # Pre-start checks
-    log_info "Performing pre-start checks..."
-    if ! check_system_requirements; then
-        log_error "System requirements check failed"
-        return 1
-    fi
-    
-    # Mount web interface
-    log_info "Mounting web interface..."
-    mount_web_interface || {
-        log_error "Failed to mount web interface"
-        return 1
-    }
-    
-    # Start web application
-    log_info "Starting web application..."
-    start_webapp || {
-        log_error "Failed to start web application"
-        return 1
-    }
-    
-    # Start Nginx service if enabled
-    if [ "$(am_settings_get nginx_enabled '1')" = "1" ]; then
-        log_info "Starting Nginx service..."
-        start_service || {
-            log_error "Failed to start Nginx service"
-            return 1
-        }
-    else
-        log_info "Nginx service is disabled, skipping..."
-    fi
-    
-    # Post-start verification
-    sleep 2
-    if verify_startup; then
-        log_info "NginxUI started successfully"
-        log_info "Web interface available at: http://$(nvram get lan_ipaddr)/$(am_settings_get nginxui_user_page 'user1.asp')"
-    else
-        log_error "NginxUI startup verification failed"
-        return 1
+            ;;
+    esac
     fi
     
     return 0
@@ -558,32 +547,49 @@ main() {
             ;;
         "health")
             health_check "$@"
-            ;;
-        "cleanup")
-            cleanup "$@"
-            ;;
-        "firewall")
-            setup_firewall "$@"
-            ;;
-        "help"|"--help"|"-h")
-            show_help
-            ;;
-        "version"|"--version"|"-v")
-            show_version
-            ;;
-        "")
-            log_error "No command specified"
-            show_help
-            exit 1
-            ;;
-        *)
-            log_error "Unknown command: $command"
-            show_help
-            exit 1
-            ;;
-    esac
 }
 
-# Execute main function with all arguments
-main "$@"
-exit $?
+# Usage information
+show_usage() {
+    cat << EOF
+NginxUI v$NGINXUI_VERSION - Nginx Management for ASUSWRT-Merlin
+
+Usage: $0 <command> [options]
+
+Commands:
+  start                 Start NginxUI service
+  stop                  Stop NginxUI service
+  restart               Restart NginxUI service
+  status                Show service status
+  install [force]       Install NginxUI
+  uninstall             Uninstall NginxUI
+  config <action>       Configuration management
+    get <key>           Get configuration value
+    set <key> <value>   Set configuration value
+    backup              Backup configuration
+    restore             Restore configuration
+  webapp <action>       Web application management
+    start               Start web application
+    stop                Stop web application
+    restart             Restart web application
+  mount                 Mount web interface
+  unmount               Unmount web interface
+  version               Show version information
+
+Examples:
+  $0 start              # Start NginxUI
+  $0 config get port    # Get port configuration
+  $0 config set port 8080  # Set port to 8080
+  $0 webapp restart     # Restart web application
+
+For more information, visit: https://github.com/your-repo/asuswrt-merlin-nginxui
+EOF
+}
+
+# Main entry point
+if [ $# -eq 0 ]; then
+    show_usage
+    exit 1
+else
+    service_event "$@"
+fi
